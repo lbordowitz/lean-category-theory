@@ -26,6 +26,11 @@ structure PreMonoidalCategory
   (interchange: Π { A B C D E F: Obj }, Π f : Hom A B, Π g : Hom B C, Π h : Hom D E, Π k : Hom E F, 
     @Functor.onMorphisms _ _ tensor (A, D) (C, F) ((compose f g), (compose h k)) = compose (@Functor.onMorphisms _ _ tensor (A, D) (B, E) (f, h)) (@Functor.onMorphisms _ _ tensor (B, E) (C, F) (g, k)))
 
+namespace PreMonoidalCategory
+  infix `⊗` :50 := λ {C : PreMonoidalCategory} (X Y : C^.Obj), C^.tensor^.onObjects (X, Y)
+  --infix `⊗` :50 := λ {C : PreMonoidalCategory} {X Y Z W : C^.Obj} (f : C^.Hom X Y) (g : C^.Hom Z W), C^.tensor^.onMorphisms (f, g)
+end PreMonoidalCategory
+
 instance PreMonoidalCategory_coercion : has_coe PreMonoidalCategory Category := 
   ⟨PreMonoidalCategory.to_Category⟩
 
@@ -40,7 +45,7 @@ definition Associator ( C : PreMonoidalCategory ) :=
     (FunctorComposition (ProductCategoryAssociator C C C) (right_associated_triple_tensor C))
 
 definition associator_components ( C : PreMonoidalCategory ) :=
-  Π X Y Z : C^.Obj, C^.Hom (C^.tensor (C^.tensor (X, Y), Z)) (C^.tensor (X, C^.tensor (Y, Z)))
+  Π X Y Z : C^.Obj, C^.Hom ((X ⊗ Y) ⊗ Z) (X ⊗ (Y ⊗ Z))
 
 /-
 definition associator_to_components { C : PreMonoidalCategory } ( α : Associator C ) : associator_components C := 
@@ -61,26 +66,26 @@ end
 structure LaxMonoidalCategory
   extends carrier : PreMonoidalCategory :=
   --(associator' : Associator carrier)
-  (associator : Π (X Y Z : Obj),
-     Hom (tensor (tensor (X, Y), Z)) (tensor (X, tensor (Y, Z)))) 
+  (associator : Π (infix `⊗` :50 := λ X Y : Obj, tensor^.onObjects (X, Y))
+                  (X Y Z : Obj),
+     Hom ((X ⊗ Y) ⊗ Z) (X ⊗ (Y ⊗ Z)))
 
 -- TODO actually, express the associator as a natural transformation!
-/- I tried writing the pentagon, but it doesn't type check. :-(
-  (pentagon : Π (A B C D : Obj),
+/- I tried writing the pentagon, but it doesn't type check. :-( -/
+  (pentagon : Π (infix `⊗` :50 := λ X Y : Obj, tensor^.onObjects (X, Y))
+                (A B C D : Obj),
      -- we need to compare:
      -- ((AB)C)D ---> (A(BC))D ---> A((BC)D) ---> A(B(CD))
      -- ((AB)C)D ---> (AB)(CD) ---> A(B(CD))
      compose
        (compose
-         (tensor <$> (associator A B C, identity D))
-         (associator A (tensor (B, C)) D)
-       ) (tensor <$> (identity A, associator B C D)) =
+         (tensor^.onMorphisms (associator A B C, identity D))
+         (associator A (B ⊗ C) D)
+       ) (tensor^.onMorphisms (identity A, associator B C D)) =
      compose
-       (associator (tensor (A, B)) C D)
-       (associator A B (tensor (C, D)))
-
+       (associator (A ⊗ B) C D)
+       (associator A B (C ⊗ D))
   )
--/
 /-
 -- TODO (far future)
 -- One should prove the first substantial result of this theory: that any two ways to reparenthesize are equal.
