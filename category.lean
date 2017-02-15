@@ -2,8 +2,6 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Stephen Morgan, Scott Morrison
 
-import .tactics
-
 /-
 -- We've decided that Obj and Hom should be fields of Category, rather than parameters.
 -- Mostly this is for the sake of simpler signatures, but it's possible that it is not the right choice.
