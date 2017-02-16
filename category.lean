@@ -8,6 +8,17 @@
 -- Functor and NaturalTransformation are each parameterized by both their source and target.
 -/
 
+set_option pp.universes true
+
+open smt_tactic
+
+def pointwise_attribute : user_attribute := {
+  name := `pointwise,
+  descr := "A lemma that proves things are equal using the fact they are pointwise equal."
+}
+
+run_command attribute.register `pointwise_attribute
+
 namespace tqft.categories
 
 universe variables u v
